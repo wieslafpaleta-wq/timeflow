@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pl" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+  <!-- ── Tytuł i opis ── -->
+  <title>TimeFlow — Tracker Dnia</title>
+  <meta name="description" content="Śledź swój dzień w blokach czasowych i analizuj produktywność" />
+
+  <!-- ── PWA Meta Tags ── -->
+  <meta name="theme-color" content="#6c63ff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="TimeFlow" />
+  <meta name="mobile-web-app-capable" content="yes" />
+
+  <!-- ── Open Graph ── -->
+  <meta property="og:title" content="TimeFlow — Tracker Dnia" />
+  <meta property="og:description" content="Analizuj swoją produktywność dzień po dniu." />
+  <meta property="og:type" content="website" />
+
+  <!-- ── Ikony ── -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%236c63ff'/><circle cx='50' cy='50' r='30' fill='none' stroke='white' stroke-width='6'/><line x1='50' y1='50' x2='50' y2='25' stroke='white' stroke-width='5' stroke-linecap='round'/><line x1='50' y1='50' x2='66' y2='60' stroke='white' stroke-width='4' stroke-linecap='round'/><circle cx='50' cy='50' r='3' fill='white'/></svg>" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%236c63ff'/><circle cx='256' cy='256' r='160' fill='none' stroke='white' stroke-width='30'/><line x1='256' y1='256' x2='256' y2='140' stroke='white' stroke-width='24' stroke-linecap='round'/><line x1='256' y1='256' x2='330' y2='300' stroke='white' stroke-width='18' stroke-linecap='round'/><circle cx='256' cy='256' r='16' fill='white'/></svg>" />
+
+  <!-- ── Manifest PWA ── -->
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- ── Stylowanie ── -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- ════════════════════════════════════════════
+       HEADER
+       ════════════════════════════════════════════ -->
+  <header class="app-header" role="banner">
+    <div class="header-brand">
+      <div class="brand-icon" aria-hidden="true">⏱</div>
+      <span class="brand-title">TimeFlow</span>
+    </div>
+
+    <div class="header-actions">
+      <!-- Przycisk instalacji PWA (pojawia się gdy dostępna) -->
+      <button id="install-btn" aria-label="Zainstaluj aplikację">
+        📲 Zainstaluj
+      </button>
+
+      <!-- Przełącznik dark/light mode -->
+      <button
+        id="theme-toggle"
+        class="btn-icon"
+        aria-label="Przełącz motyw"
+        title="Przełącz motyw"
+      >
+        ☀️
+      </button>
+    </div>
+  </header>
+
+  <!-- ════════════════════════════════════════════
+       PASEK STATUSU DNIA
+       ════════════════════════════════════════════ -->
+  <div class="day-status-bar" role="status" aria-live="polite">
+    <div class="current-date" id="current-date">Wczytuję datę…</div>
+    <div class="blocks-count-badge" id="blocks-count-badge" aria-label="Liczba bloków">0 bloków</div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       GŁÓWNA TREŚĆ
+       ════════════════════════════════════════════ -->
+  <main class="main-container" role="main">
+
+    <!-- ─── WIDOK: DODAJ BLOK ─────────────────── -->
+    <div id="view-add" class="view active" role="tabpanel" aria-label="Dodaj blok">
+
+      <!-- Timeline dnia (zawsze widoczny) -->
+      <section class="section" aria-label="Timeline dnia">
+        <div class="timeline-wrap">
+          <div class="timeline-header">
+            <span class="timeline-title">📅 Oś czasu dnia</span>
+          </div>
+
+          <div class="timeline-hours" aria-hidden="true">
+            <span>00:00</span>
+            <span>06:00</span>
+            <span>12:00</span>
+            <span>18:00</span>
+            <span>24:00</span>
+          </div>
+
+          <div class="timeline-bar" id="timeline-bar" role="img" aria-label="Wizualizacja bloków dnia">
+            <!-- Wypełniane przez JavaScript -->
+          </div>
+
+          <div class="timeline-legend" aria-label="Legenda">
+            <div class="legend-item">
+              <span class="legend-dot productive"></span>
+              Produktywne
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot neutral"></span>
+              Neutralne
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot wasteful"></span>
+              Strata czasu
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Formularz dodawania bloku -->
+      <section class="section" aria-label="Formularz dodawania bloku">
+        <div class="section-label">Nowy blok czasu</div>
+
+        <div class="add-form" role="form" aria-label="Formularz nowego bloku">
+
+          <!-- Wiersz godzin -->
+          <div class="time-row">
+            <div class="field-wrap">
+              <label class="field-label" for="from-input">Od godziny</label>
+              <input
+                type="time"
+                id="from-input"
+                name="from"
+                aria-label="Czas rozpoczęcia"
+                autocomplete="off"
+              />
+              <span class="field-error" id="from-error" role="alert"></span>
+            </div>
+
+            <div class="field-wrap">
+              <label class="field-label" for="to-input">Do godziny</label>
+              <input
+                type="time"
+                id="to-input"
+                name="to"
+                aria-label="Czas zakończenia"
+                autocomplete="off"
+              />
+              <span class="field-error" id="to-error" role="alert"></span>
+            </div>
+          </div>
+
+          <!-- Opis aktywności -->
+          <div class="field-wrap">
+            <label class="field-label" for="desc-input">Co robiłeś/aś?</label>
+            <textarea
+              id="desc-input"
+              name="desc"
+              placeholder="np. nauka, praca nad projektem, trening, spotkanie…"
+              aria-label="Opis aktywności"
+              maxlength="200"
+              autocomplete="off"
+              autocorrect="on"
+              spellcheck="true"
+            ></textarea>
+            <span class="char-counter" id="char-counter" aria-live="polite">0/200</span>
+            <span class="field-error" id="desc-error" role="alert"></span>
+          </div>
+
+          <!-- Przycisk dodaj -->
+          <button
+            id="add-block-btn"
+            class="btn-primary"
+            type="button"
+            aria-label="Dodaj blok czasu"
+          >
+            + Dodaj blok
+          </button>
+
+          <p style="font-size:0.72rem;color:var(--text-muted);text-align:center;margin-top:10px;line-height:1.4">
+            Aktywność zostanie automatycznie sklasyfikowana 🤖<br>
+            <kbd style="background:var(--bg-input);padding:1px 5px;border-radius:4px;font-size:0.68rem">Ctrl + Enter</kbd> = szybkie dodanie
+          </p>
+        </div>
+      </section>
+
+    </div><!-- /view-add -->
+
+    <!-- ─── WIDOK: LISTA BLOKÓW ────────────────── -->
+    <div id="view-list" class="view" role="tabpanel" aria-label="Lista bloków">
+      <section class="section">
+        <div class="section-label">Twój dzień</div>
+        <div id="blocks-list" class="blocks-list" role="list" aria-label="Lista bloków czasu">
+          <!-- Wypełniane przez JavaScript -->
+        </div>
+      </section>
+    </div><!-- /view-list -->
+
+    <!-- ─── WIDOK: ANALIZA ─────────────────────── -->
+    <div id="view-analysis" class="view" role="tabpanel" aria-label="Analiza dnia">
+      <section class="section">
+        <div class="section-label">Analiza produktywności</div>
+
+        <div class="analysis-panel">
+          <div class="analysis-trigger">
+            <button
+              id="analyze-btn"
+              class="btn-secondary"
+              type="button"
+              aria-label="Analizuj dzień"
+            >
+              🔍 Analizuj dzień
+            </button>
+          </div>
+
+          <!-- Wyniki analizy (wstrzykiwane przez JS) -->
+          <div
+            id="analysis-result"
+            class="analysis-result"
+            role="region"
+            aria-label="Wyniki analizy"
+            aria-live="polite"
+          ></div>
+        </div>
+      </section>
+    </div><!-- /view-analysis -->
+
+  </main>
+
+  <!-- ════════════════════════════════════════════
+       BOTTOM NAVIGATION BAR
+       ════════════════════════════════════════════ -->
+  <nav class="bottom-nav" role="navigation" aria-label="Nawigacja główna">
+
+    <button
+      id="nav-add"
+      class="nav-item"
+      data-view="add"
+      type="button"
+      aria-label="Dodaj blok"
+      role="tab"
+    >
+      <span class="nav-icon">
+        ➕
+        <span class="nav-indicator" aria-hidden="true"></span>
+      </span>
+      <span class="nav-label">Dodaj</span>
+    </button>
+
+    <button
+      id="nav-list"
+      class="nav-item"
+      data-view="list"
+      type="button"
+      aria-label="Lista bloków"
+      role="tab"
+    >
+      <span class="nav-icon">
+        📋
+        <span class="nav-indicator" aria-hidden="true"></span>
+      </span>
+      <span class="nav-label">Lista</span>
+    </button>
+
+    <button
+      id="nav-analysis"
+      class="nav-item"
+      data-view="analysis"
+      type="button"
+      aria-label="Analiza dnia"
+      role="tab"
+    >
+      <span class="nav-icon">
+        📊
+        <span class="nav-indicator" aria-hidden="true"></span>
+      </span>
+      <span class="nav-label">Analiza</span>
+    </button>
+
+  </nav>
+
+  <!-- ════════════════════════════════════════════
+       TOAST NOTIFICATIONS
+       ════════════════════════════════════════════ -->
+  <div
+    id="toast-container"
+    class="toast-container"
+    role="region"
+    aria-label="Powiadomienia"
+    aria-live="assertive"
+  ></div>
+
+  <!-- ════════════════════════════════════════════
+       SKRYPTY
+       ════════════════════════════════════════════ -->
+  <script src="app.js"></script>
+
+</body>
+</html>

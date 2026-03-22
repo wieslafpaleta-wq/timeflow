@@ -1,0 +1,33 @@
+{
+  "name": "TimeFlow - Tracker Dnia",
+  "short_name": "TimeFlow",
+  "description": "Śledź swój dzień w blokach czasowych i analizuj produktywność",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a0f",
+  "theme_color": "#6c63ff",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%236c63ff'/><circle cx='256' cy='256' r='160' fill='none' stroke='white' stroke-width='30'/><line x1='256' y1='256' x2='256' y2='140' stroke='white' stroke-width='24' stroke-linecap='round'/><line x1='256' y1='256' x2='330' y2='300' stroke='white' stroke-width='18' stroke-linecap='round'/><circle cx='256' cy='256' r='16' fill='white'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "lifestyle"],
+  "screenshots": [],
+  "lang": "pl"
+}
